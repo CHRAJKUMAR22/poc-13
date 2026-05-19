@@ -1,38 +1,30 @@
-locals {
-  region = "us-east-1"
+terraform {
+  required_version = ">= 1.5.0"
 
-  name = "raju-eks-cluster"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
 
-  vpc_cidr = "10.123.0.0/16"
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.23"
+    }
 
-  azs = [
-    "us-east-1a",
-    "us-east-1b"
-  ]
+    time = {
+      source  = "hashicorp/time"
+      version = "~> 0.9"
+    }
 
-  public_subnets = [
-    "10.123.1.0/24",
-    "10.123.2.0/24"
-  ]
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
+    }
 
-  private_subnets = [
-    "10.123.3.0/24",
-    "10.123.4.0/24"
-  ]
-
-  intra_subnets = [
-    "10.123.5.0/24",
-    "10.123.6.0/24"
-  ]
-
-  common_tags = {
-    Environment = "dev"
-    Project     = "eks"
-    Terraform   = "true"
-    Owner       = "Raju"
+    cloudinit = {
+      source  = "hashicorp/cloudinit"
+      version = "~> 2.3"
+    }
   }
-}
-
-provider "aws" {
-  region = local.region
 }
