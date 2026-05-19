@@ -15,7 +15,7 @@ pipeline {
                     checkout scmGit(
                         branches: [[name: '*/main']],
                         userRemoteConfigs: [[
-                            url: 'https://github.com/CHRAJKUMAR22/EKS-Terraform-Jenkins.git'
+                            url: 'https://github.com/CHRAJKUMAR22/poc-13.git'
                         ]]
                     )
                 }
