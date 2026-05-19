@@ -1,2 +1,2 @@
-# poc-13
-terraform-jenkins-eks cluster deployment
+# EKS-Terraform-Jenkins
+EKS-Terraform-Jenkins
