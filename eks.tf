@@ -9,9 +9,11 @@ module "eks" {
     coredns = {
       most_recent = true
     }
+
     kube-proxy = {
       most_recent = true
     }
+
     vpc-cni = {
       most_recent = true
     }
@@ -21,7 +23,6 @@ module "eks" {
   subnet_ids               = module.vpc.private_subnets
   control_plane_subnet_ids = module.vpc.intra_subnets
 
-  # EKS Managed Node Group(s)
   eks_managed_node_group_defaults = {
     ami_type       = "AL2_x86_64"
     instance_types = ["m5.large"]
@@ -31,6 +32,7 @@ module "eks" {
 
   eks_managed_node_groups = {
     amc-cluster-wg = {
+
       min_size     = 1
       max_size     = 2
       desired_size = 1
@@ -44,5 +46,5 @@ module "eks" {
     }
   }
 
-  tags = local.tags
+  tags = local.common_tags
 }
