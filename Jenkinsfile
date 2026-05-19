@@ -1,50 +1,73 @@
-module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "19.15.1"
+pipeline {
+    agent any
 
-  cluster_name                   = local.name
-  cluster_endpoint_public_access = true
-
-  cluster_addons = {
-    coredns = {
-      most_recent = true
+    environment {
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_DEFAULT_REGION    = 'us-east-1'
     }
 
-    kube-proxy = {
-      most_recent = true
+    stages {
+
+        stage('Checkout SCM') {
+            steps {
+                script {
+                    checkout scmGit(
+                        branches: [[name: '*/main']],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/CHRAJKUMAR22/EKS-Terraform-Jenkins.git'
+                        ]]
+                    )
+                }
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                dir('terraform') {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Validate') {
+            steps {
+                dir('terraform') {
+                    sh 'terraform validate'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                dir('terraform') {
+                    sh 'terraform plan -out=tfplan'
+                }
+            }
+        }
+
+        stage('Approval') {
+            steps {
+                input message: 'Approve Terraform Apply?', ok: 'Apply'
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                dir('terraform') {
+                    sh 'terraform apply -auto-approve tfplan'
+                }
+            }
+        }
     }
 
-    vpc-cni = {
-      most_recent = true
+    post {
+        success {
+            echo 'EKS Cluster Created Successfully'
+        }
+
+        failure {
+            echo 'Pipeline Failed'
+        }
     }
-  }
-
-  vpc_id                   = module.vpc.vpc_id
-  subnet_ids               = module.vpc.private_subnets
-  control_plane_subnet_ids = module.vpc.intra_subnets
-
-  eks_managed_node_group_defaults = {
-    ami_type       = "AL2_x86_64"
-    instance_types = ["m5.large"]
-
-    attach_cluster_primary_security_group = true
-  }
-
-  eks_managed_node_groups = {
-    amc-cluster-wg = {
-
-      min_size     = 1
-      max_size     = 2
-      desired_size = 1
-
-      instance_types = ["t3.large"]
-      capacity_type  = "SPOT"
-
-      tags = {
-        ExtraTag = "helloworld"
-      }
-    }
-  }
-
-  tags = local.common_tags
 }
